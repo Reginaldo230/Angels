@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Membros</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.css">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            margin-top: 40px;
+        }
+        .card {
+            background-color: #16213e;
+            color: #fff;
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .btn-info, .btn-success, .btn-danger {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-info:hover, .btn-success:hover, .btn-danger:hover {
+            opacity: 0.9;
+        }
+        h1 {
+            color: #00adb5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Gerenciar Membros</h1>
+        <div id="memberList" class="mt-4"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script>
+        const firebaseConfig = {
+    apiKey: "AIzaSyChxrvjksgKmzo_iNCZMbVcyiLa9ibFaHE",
+    authDomain: "cadastro-89af5.firebaseapp.com",
+    projectId: "cadastro-89af5",
+    storageBucket: "cadastro-89af5.appspot.com",
+    messagingSenderId: "978088873699",
+    appId: "1:978088873699:web:0d8d74e519ee90d9f43fd6"
+  };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const memberList = document.getElementById('memberList');
+
+        // Função para carregar membros
+        function loadMembers() {
+            memberList.innerHTML = ''; // Limpa a lista antes de carregar
+            db.collection('members').where('status', '==', 'pendente').get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    const member = doc.data();
+                    memberList.innerHTML += `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">${member.name}</h5>
+                                <p class="card-text">Nick: ${member.nick}</p>
+                                <button onclick="viewDetails('${doc.id}')" class="btn btn-info">Detalhes</button>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        // Função para ver detalhes e aceitar ou negar membro
+// Função para ver detalhes e aceitar ou negar membro
+function viewDetails(id) {
+    db.collection('members').doc(id).get().then(doc => {
+        const member = doc.data();
+        swal({
+            title: `${member.name} (${member.nick})`,
+            text: `ID: ${member.id}\nIdade: ${member.age}`,
+            icon: "info",
+            buttons: {
+                cancel: "Fechar", // Modifiquei o texto do botão de cancelamento
+                deny: {
+                    text: "Negar",
+                    value: "deny",
+                    visible: true,
+                    className: "btn-danger"
+                },
+                accept: {
+                    text: "Aceitar",
+                    value: "accept",
+                    visible: true,
+                    className: "btn-success"
+                }
+            }
+        }).then((value) => {
+            // Verifica o valor retornado
+            if (value === "accept") {
+                updateStatus(id, 'aceite'); // Atualiza para aceite
+            } else if (value === "deny") {
+                updateStatus(id, 'negado'); // Atualiza para negado
+            } else {
+                // Não faz nada se o usuário fechou o alerta (valor será null)
+                console.log("O alerta foi fechado ou o usuário escolheu 'Fechar'.");
+            }
+        });
+    });
+}
+
+        // Função para atualizar o status do membro
+        function updateStatus(id, status) {
+            db.collection('members').doc(id).update({
+                status: status
+            }).then(() => {
+                swal("Sucesso", `Membro ${status}!`, "success");
+                loadMembers(); // Recarrega a lista de membros
+            }).catch((error) => {
+                swal("Erro", "Erro ao atualizar o status: " + error, "error");
+            });
+        }
+
+        // Carregar a lista de membros ao iniciar a página
+        loadMembers();
+    </script>
+</body>
+</html>

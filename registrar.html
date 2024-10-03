@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Membros</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.css">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 400px;
+            background-color: #495057;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Cadastro de Membros</h1>
+        <form id="memberForm">
+            <div class="form-group">
+                <label for="nick">Nick</label>
+                <input type="text" class="form-control" id="nick" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Nome</label>
+                <input type="text" class="form-control" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="id">ID</label>
+                <input type="text" class="form-control" id="id" required>
+            </div>
+            <div class="form-group">
+                <label for="age">Idade</label>
+                <input type="number" class="form-control" id="age" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-user-plus"></i> Cadastrar</button>
+        </form>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+    <script>
+          const firebaseConfig = {
+              apiKey: "AIzaSyChxrvjksgKmzo_iNCZMbVcyiLa9ibFaHE",
+              authDomain: "cadastro-89af5.firebaseapp.com",
+              projectId: "cadastro-89af5",
+              storageBucket: "cadastro-89af5.appspot.com",
+              messagingSenderId: "978088873699",
+              appId: "1:978088873699:web:0d8d74e519ee90d9f43fd6"
+            };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.getElementById('memberForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nick = document.getElementById('nick').value;
+            const name = document.getElementById('name').value;
+            const id = document.getElementById('id').value;
+            const age = document.getElementById('age').value;
+
+            db.collection('members').add({
+                nick: nick,
+                name: name,
+                id: id,
+                age: age,
+                status: 'pendente'
+            }).then(() => {
+                swal("Sucesso!", "Membro cadastrado com sucesso!", "success");
+                document.getElementById('memberForm').reset();
+            }).catch((error) => {
+                swal("Erro!", "Erro ao cadastrar membro: " + error, "error");
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Membro</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #343a40;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            max-width: 400px;
+            background-color: #495057;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Verificar Membro</h1>
+        <input type="text" id="idInput" class="form-control mb-3" placeholder="Insira o ID">
+        <button class="btn btn-primary w-100" onclick="checkMember()">Verificar</button>
+        <div id="memberInfo" class="mt-4"></div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+    apiKey: "AIzaSyChxrvjksgKmzo_iNCZMbVcyiLa9ibFaHE",
+    authDomain: "cadastro-89af5.firebaseapp.com",
+    projectId: "cadastro-89af5",
+    storageBucket: "cadastro-89af5.appspot.com",
+    messagingSenderId: "978088873699",
+    appId: "1:978088873699:web:0d8d74e519ee90d9f43fd6"
+  };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function checkMember() {
+            const id = document.getElementById('idInput').value;
+            db.collection('members').where('id', '==', id).get().then(snapshot => {
+                snapshot.forEach(doc => {
+                    const member = doc.data();
+                    let statusInfo = member.status === 'aceite' 
+                        ? `<button class="btn btn-success w-100" onclick="sendWhatsApp()">Entrar pra guilda</button>` 
+                        : member.status === 'negado' ? 'Membro foi negado' : 'Pendente de aprovação';
+
+                    document.getElementById('memberInfo').innerHTML = `
+                        <h4>${member.name} (${member.nick})</h4>
+                        <p>ID: ${member.id}</p>
+                        <pIdade: ${member.age}</p>
+                        <p>Status: ${member.status}</p>
+                        ${statusInfo}`;
+                  });
+             });
+        }
+                        
+     function sendWhatsApp() {
+         const whatsappUrl = "https://wa.me/244958610214?text=Fui%20aceite!";
+         window.open(whatsappUrl, "_blank");
+      }
+ </script>
+ </body>
+</html>
